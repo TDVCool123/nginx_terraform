@@ -23,6 +23,27 @@ jobs:
          aws-region: us-east-1
 
 
-     - name: Deploy to AWS S3
+     - name: Deploy infrastructure with Terraform
+     - uses: hashicorp/setup-terraform@v3
+     with:
+          terraform_version: 1.10.0
        run: |
-         aws s3 sync . s3://nginxterraform --delete
+         terraform init
+         terraform plan
+         terraform apply -auto-approve
+         
+     - name: Retrieve EC2 Public IP
+        id: get_ip
+        run: |
+          echo "EC2_PUBLIC_IP=$(terraform output -raw ec2_public_ip)" >> $GITHUB_ENV
+
+      - name: Copy project files to EC2
+        run: |
+          scp -o StrictHostKeyChecking=no -i nginx-server.key -r ./handtime-html ec2-user@${{ env.EC2_PUBLIC_IP }}:/var/www/html/
+
+      - name: Configure Nginx
+        run: |
+          ssh -o StrictHostKeyChecking=no -i nginx-server.key ec2-user@${{ env.EC2_PUBLIC_IP }} << EOF
+          sudo sed -i 's|root /var/www/html;|root /var/www/html/handtime-html;|' /etc/nginx/nginx.conf
+          sudo systemctl restart nginx
+          EOF
