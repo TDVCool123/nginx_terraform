@@ -61,6 +61,10 @@ resource "aws_instance" "nginx-server" {
              sudo yum install -y nginx
              sudo systemctl enable nginx
              sudo systemctl start nginx
+             cd /var
+             sudo mkdir www
+             cd /www
+             sudo mkdir html
              EOF
  user_data_replace_on_change = true
  key_name = aws_key_pair.nginx-server-ssh.key_name

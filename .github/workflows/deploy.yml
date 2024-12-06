@@ -47,11 +47,12 @@ jobs:
         run: |
           sudo chmod 777 nginx-server.key
           ls -l
-          scp -i nginx-server.key -r ./handtime-html ec2-user@ec2-${{ env.EC2_PUBLIC_IP_HYPHEN }}.compute-1.amazonaws.com:/var/www/html/
+          scp -o StrictHostKeyChecking=no -i nginx-server.key -r ./handtime-html ec2-user@ec2-${{ env.EC2_PUBLIC_IP_HYPHEN }}.compute-1.amazonaws.com:/var/www/html/
 
       - name: Configure Nginx
         run: |
-          ssh -i nginx-server.key ec2-user@${{ env.EC2_PUBLIC_IP }}.compute-1.amazonaws.com << EOF
+          ssh -o StrictHostKeyChecking=no -i nginx-server.key ec2-user@${{ env.EC2_PUBLIC_IP }}.compute-1.amazonaws.com << EOF
+          sudo chmod 666 nginx-server.key
           sudo sed -i 's|root /var/www/html;|root /var/www/html/handtime-html;|' /etc/nginx/nginx.conf
           sudo systemctl restart nginx
           EOF
