@@ -3,6 +3,7 @@ on:
  push:
    branches:
      - main  # Change to your default branch
+   workflow_dispatch:
 
 
 jobs:
@@ -23,8 +24,8 @@ jobs:
 
       - name: Deploy infrastructure with Terraform
       - uses: hashicorp/setup-terraform@v3
-      with:
-            terraform_version: 1.10.0
+        with:
+          terraform_version: 1.10.0
         run: |
           terraform init
           terraform plan
