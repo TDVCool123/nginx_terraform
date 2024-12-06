@@ -45,7 +45,7 @@ jobs:
 
       - name: Copy project files to EC2
         run: |
-          sudo chmod 400 nginx-server.key
+          sudo chmod 777 nginx-server.key
           scp -o StrictHostKeyChecking=no -i nginx-server.key -r ./handtime-html ec2-user@ec2-${{ env.EC2_PUBLIC_IP_HYPHEN }}.compute-1.amazonaws.com:/var/www/html/
 
       - name: Configure Nginx
