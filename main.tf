@@ -65,6 +65,7 @@ resource "aws_instance" "nginx-server" {
              sudo mkdir www
              cd www
              sudo mkdir html
+             sudo chown ec2-user:ec2-user /var/www/html
              EOF
  user_data_replace_on_change = true
  key_name = aws_key_pair.nginx-server-ssh.key_name
