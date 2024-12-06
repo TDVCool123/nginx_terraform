@@ -22,10 +22,12 @@ jobs:
           aws-region: us-east-1
 
 
-      - name: Deploy infrastructure with Terraform
+      - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.10.0
+
+      - name: Deploy infrastructure with Terraform
         run: |
           terraform init
           terraform plan
