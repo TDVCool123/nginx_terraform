@@ -29,7 +29,6 @@ jobs:
 
       - name: Deploy infrastructure with Terraform
         run: |
-          terraform destroy
           terraform init
           terraform plan
           terraform apply -auto-approve
