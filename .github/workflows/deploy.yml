@@ -23,7 +23,7 @@ jobs:
 
 
       - name: Deploy infrastructure with Terraform
-      - uses: hashicorp/setup-terraform@v3
+        uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.10.0
         run: |
