@@ -63,7 +63,7 @@ resource "aws_instance" "nginx-server" {
              sudo systemctl start nginx
              cd /var
              sudo mkdir www
-             cd /www
+             cd www
              sudo mkdir html
              EOF
  user_data_replace_on_change = true
