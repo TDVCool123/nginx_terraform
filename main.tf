@@ -59,6 +59,9 @@ resource "aws_instance" "nginx-server" {
  user_data = <<-EOF
              #!/bin/bash
              sudo yum install -y nginx
+             sudo yum install -y openssh-server
+             sudo systemctl enable sshd
+             sudo systemctl start sshd
              sudo systemctl enable nginx
              sudo systemctl start nginx
              cd /var
