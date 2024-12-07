@@ -1,4 +1,4 @@
-name: Desplegando pagina estatica en S3
+name: Desplegando pagina estatica en nginx ec2 
 on:
  push:
    branches:
