@@ -9,35 +9,58 @@ on:
         default: 'Manual Debug Build'
         description: 'Release Notes'
 
+
 jobs:
-  terraform:
+ deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v2
-        with:
-          terraform_version: 1.5.6  # Specify the Terraform version you need
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v3
+      - name: Set up AWS CLI
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1  # Your region
+          aws-region: us-east-1
 
 
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.10.0
 
-      - name: Initialize Terraform
-        run: terraform init
+      - name: Deploy infrastructure with Terraform
+        run: |
+          terraform init
+          terraform destroy
+          terraform plan
+          terraform apply -auto-approve
 
-      # - name: Destroy Terraform
-      #   run: terraform destroy
+      - name: Retrieve EC2 Public IP
+        id: get_ip
+        run: |
+          echo "EC2_PUBLIC_IP=$(terraform output -raw ec2_public_ip)" >> $GITHUB_ENV
+      
 
-      - name: Plan Terraform changes
-        run: terraform plan -destroy
+      - name: Convert EC2_PUBLIC_IP to hyphen format
+        run: |
+          echo "EC2_PUBLIC_IP_HYPHEN=$(echo ${{ env.EC2_PUBLIC_IP }} | sed 's/\./-/g')" >> $GITHUB_ENV
 
-      - name: Apply Terraform changes
-        run: terraform apply -auto-approve
+      - name: Wait for EC2 instance to initialize
+        run: sleep 60
+
+      - name: Copy project files to EC2
+        run: |
+          sudo chmod 400 nginx-server.key
+          ls -l
+          sudo scp -o StrictHostKeyChecking=no -i nginx-server.key -r ./handtime-html ec2-user@ec2-${{ env.EC2_PUBLIC_IP_HYPHEN }}.compute-1.amazonaws.com:/var/www/html/
+
+      - name: Configure Nginx
+        run: |
+          ssh -o StrictHostKeyChecking=no -i nginx-server.key ec2-user@ec2-${{ env.EC2_PUBLIC_IP_HYPHEN }}.compute-1.amazonaws.com << EOF
+          sudo chmod 666 /etc/nginx/nginx.conf
+          sudo sed -i 's|root         /usr/share/nginx/html;|root /var/www/html/handtime-html;|' /etc/nginx/nginx.conf
+          sudo systemctl restart nginx
+          EOF

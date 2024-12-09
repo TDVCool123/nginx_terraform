@@ -4,13 +4,13 @@ provider "aws" {
 }
 
 resource "aws_key_pair" "nginx-server-ssh" {
-   key_name   = "nginx-server-ssh"
+   key_name   = "nginx-server-ssh-s3tf"
    public_key = file("nginx-server.key.pub")
 }
 
 
 resource "aws_security_group" "nginx-server-sg" {
- name        = "nginx-server-sg"
+ name        = "nginx-server-sg-s3tf"
  description = "Security group allowing SSH and HTTP access"
 
 
